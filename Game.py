@@ -4,27 +4,26 @@ import time
 import pymunk
 
 # Importar uma bibliteca que temos no nosso projeto 
-# e que tem funcoes que queremos usar
-from lib.GameUtil import  GameSprite, Game, Spritesheet
+# Game é uma classe que representa o jogo
+# GameObject é uma classe que representa um objeto do jogo
+# SpriteSheet é uma classe que representa uma imagem com varios frames
+from lib.GameUtil import  GameObject, Game, SpriteSheet
 
-space = pymunk.Space()
-space.gravity = (0, 100) 
 
-game = Game(800, 600, space)
+game = Game(800, 600)
+game.gravity((0, 10))
 
 # Variaveis para  cores
 WHITE = (255, 255, 255)
+FORCA_DO_SALTO = 500 
 
-# Criar um sprite animado
-# O sprite animado é um objeto que tem uma imagem e uma posicao
-# o primeiro argumento é o caminho para a imagem
-# o segundo argumento é a posicao do sprite na imagem
-# o terceiro argumento é o tamanho do sprite na imagem
-# o quarto argumento é a quantidade de frames que a imagem tem
+personagem1SpriteSheet = SpriteSheet("sprites/PixelAdventure/Main Characters/Ninja Frog/Idle (32x32).png", (0,0), (32,32), 10)
+personagem1 = GameObject(personagem1SpriteSheet, inicial_position=(100,100))
 
-personagem1SpriteSheet = Spritesheet("sprites/PixelAdventure/Main Characters/Ninja Frog/Idle (32x32).png", (0,0), (32,32), 10)
-personagem1 = GameSprite(personagem1SpriteSheet, inicial_position=(100,100))
+personagem2 = personagem1.clone((200, 100))
 
+game.add_game_object(personagem1)
+game.add_game_object(personagem2)
 
 # tratamento de eventos
 def handle_game_event(game, event):
@@ -46,10 +45,12 @@ def handle_game_event(game, event):
             pass
         if event.key == pygame.K_s:
             pass
+        if event.key == pygame.K_SPACE:
+             personagem1.apply_force((0, -FORCA_DO_SALTO))
     elif event.type == pygame.KEYUP:
         if event.key == pygame.K_LEFT:
             pass
-        if event.key == pygame.K_RIGHT:
+        if event.key == pygame.K_RIGHT: 
             pass
         if event.key == pygame.K_UP:
             pass
@@ -66,11 +67,13 @@ def handle_game_event(game, event):
 
 def update_game_state(game, time_variation):
     personagem1.update()
+    personagem2.update()
 
 
 def render_sprites(game):
     game.screen.fill(WHITE)
     game.screen.blit(personagem1.image, personagem1.rect)
+    game.screen.blit(personagem2.image, personagem2.rect)
     pygame.display.flip()
     
 
