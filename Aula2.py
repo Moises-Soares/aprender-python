@@ -1,55 +1,71 @@
 import pygame
 import sys
+import time
+import pymunk
 
 # Importar uma bibliteca que temos no nosso projeto 
 # e que tem funcoes que queremos usar
-from lib.GameUtil import  AnimatedSprite, Game
+from lib.GameUtil import  GameSprite, Game, Spritesheet
 
-game = Game(800, 600)
+space = pymunk.Space()
+space.gravity = (0, 100) 
+
+game = Game(800, 600, space)
 
 # Variaveis para  cores
 WHITE = (255, 255, 255)
 
 # Criar um sprite animado
 # O sprite animado é um objeto que tem uma imagem e uma posicao
-personagem1 = AnimatedSprite("sprites/PixelAdventure/Main Characters/Mask Dude/Idle (32x32).png", (0,0), (32,32), 10)
-personagem1.rect.x = 100
-personagem1.rect.y = 100
+# o primeiro argumento é o caminho para a imagem
+# o segundo argumento é a posicao do sprite na imagem
+# o terceiro argumento é o tamanho do sprite na imagem
+# o quarto argumento é a quantidade de frames que a imagem tem
 
-personagem2 = AnimatedSprite("sprites/PixelAdventure/Main Characters/Ninja Frog/Idle (32x32).png", (0,0), (32,32), 10)
-personagem2.rect.x = 200
-personagem2.rect.y = 200
+personagem1SpriteSheet = Spritesheet("sprites/PixelAdventure/Main Characters/Ninja Frog/Idle (32x32).png", (0,0), (32,32), 10)
+personagem1 = GameSprite(personagem1SpriteSheet, inicial_position=(100,100))
 
-fundo = AnimatedSprite("sprites/PixelAdventure/Background/Blue.png", (0,0), (32,32), 1)
-fundo.rect.x = 0
-fundo.rect.y = 0
 
 # tratamento de eventos
 def handle_game_event(game, event):
     # tratar direcao do personagem
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
-            personagem1.rect.x -= 10
+            pass
         if event.key == pygame.K_RIGHT:
-            personagem1.rect.x += 10
+            pass
         if event.key == pygame.K_UP:
-            personagem1.rect.y -= 10
+            pass
         if event.key == pygame.K_DOWN:
-            personagem1.rect.y += 10
+            pass
         if event.key == pygame.K_a:
-            personagem2.rect.x -= 10
+            pass
         if event.key == pygame.K_d:
-            personagem2.rect.x += 10
+            pass
         if event.key == pygame.K_w:
-            personagem2.rect.y -= 10
+            pass
         if event.key == pygame.K_s:
-            personagem2.rect.y += 10
+            pass
+    elif event.type == pygame.KEYUP:
+        if event.key == pygame.K_LEFT:
+            pass
+        if event.key == pygame.K_RIGHT:
+            pass
+        if event.key == pygame.K_UP:
+            pass
+        if event.key == pygame.K_DOWN:
+            pass
+        if event.key == pygame.K_a:
+            pass
+        if event.key == pygame.K_d:
+            pass
+        if event.key == pygame.K_w:
+            pass
+        if event.key == pygame.K_s:
+            pass
 
-def update_game_state(game):
+def update_game_state(game, time_variation):
     personagem1.update()
-    personagem2.update()
-    fundo.update()
-    pass
 
 
 def render_sprites(game):
