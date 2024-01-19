@@ -1,29 +1,26 @@
 import pygame
-import sys
-import time
-import pymunk
+from lib.GameUtil import  GameObject, Game, GameObjectType, SpriteSheet
 
-# Importar uma bibliteca que temos no nosso projeto 
-# Game é uma classe que representa o jogo
-# GameObject é uma classe que representa um objeto do jogo
-# SpriteSheet é uma classe que representa uma imagem com varios frames
-from lib.GameUtil import  GameObject, Game, SpriteSheet
-
+WHITE = (255, 255, 255)
 
 game = Game(800, 600)
-game.gravity((0, 10))
+game.set_gravity((0, 10))
+game.set_background_color(WHITE)
 
 # Variaveis para  cores
-WHITE = (255, 255, 255)
+
 FORCA_DO_SALTO = 500 
 
 personagem1SpriteSheet = SpriteSheet("sprites/PixelAdventure/Main Characters/Ninja Frog/Idle (32x32).png", (0,0), (32,32), 10)
 personagem1 = GameObject(personagem1SpriteSheet, inicial_position=(100,100))
 
-personagem2 = personagem1.clone((200, 100))
+blocoSpriteSheet = SpriteSheet("sprites/PixelAdventure/Terrain/Terrain (16x16).png", (0,0), (48,48), 1)
+bloco = GameObject(blocoSpriteSheet, inicial_position=(100,200), type=GameObjectType.STATIC)
+bloco2 = bloco.clone((300,300))
 
 game.add_game_object(personagem1)
-game.add_game_object(personagem2)
+game.add_game_object(bloco)
+game.add_game_object(bloco2)
 
 # tratamento de eventos
 def handle_game_event(game, event):
@@ -32,6 +29,7 @@ def handle_game_event(game, event):
         if event.key == pygame.K_LEFT:
             pass
         if event.key == pygame.K_RIGHT:
+            personagem1.apply_force((100, 0))
             pass
         if event.key == pygame.K_UP:
             pass
@@ -66,15 +64,11 @@ def handle_game_event(game, event):
             pass
 
 def update_game_state(game, time_variation):
-    personagem1.update()
-    personagem2.update()
+    pass
 
 
 def render_sprites(game):
-    game.screen.fill(WHITE)
-    game.screen.blit(personagem1.image, personagem1.rect)
-    game.screen.blit(personagem2.image, personagem2.rect)
-    pygame.display.flip()
+    pass
     
 
 game.play(handle_game_event, update_game_state, render_sprites)
