@@ -6,7 +6,6 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 
-
 # Criar um jogo com 800x600 pixels
 game = Game(800, 600)
 
@@ -19,7 +18,8 @@ game.set_gravity((0, 40))
 game.set_background_color(WHITE)
 
 # Define a força do salto
-FORCA_DO_SALTO = 800
+VELOCIDADE_DE_SALTO = 50
+VELOCIDADE_ANDAR = 50
 
 personagem1 = GameObject(size=(32,32), type=GameObjectType.DYNAMIC)
 personagem1.position = (100,100)
@@ -27,24 +27,17 @@ personagem1.add_animation("idle", SpriteSheet("sprites/PixelAdventure/Main Chara
 personagem1.add_animation("run", SpriteSheet("sprites/PixelAdventure/Main Characters/Ninja Frog/Run (32x32).png", (0,0), (32,32), 10))
 personagem1.set_current_animation("idle")
 
+# cria um bloco
 bloco = GameObject(size=(40,48), type=GameObjectType.STATIC)
 bloco.position = (100,100)
 bloco.add_animation("idle", SpriteSheet("sprites/PixelAdventure/Terrain/Terrain (16x16).png", (0,0), (48,48), 1))
 bloco.set_current_animation("idle")
 
-#blocos = bloco.generate_clones([(100,100),(200,200)])
-
-
-
-
-
-
-
+# cria varios blocos
+blocos = bloco.create_clones([(0, 500), (48, 500) ])
 
 game.add_game_object(personagem1)
-game.add_game_object(bloco)
-
-
+game.add_game_objects(blocos)
 
 
 # tratamento de eventos
@@ -52,11 +45,11 @@ def handle_game_event(game, event):
     # tratar direcao do personagem
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
-            personagem1.apply_force((-370, 0))
+            personagem1.set_velocity_x(-VELOCIDADE_ANDAR)
             personagem1.set_current_animation("run")
             pass
         if event.key == pygame.K_RIGHT:
-            personagem1.apply_force((370, 0))
+            personagem1.set_velocity_x(VELOCIDADE_ANDAR)
             personagem1.set_current_animation("run")
             pass
         if event.key == pygame.K_UP:
@@ -72,11 +65,16 @@ def handle_game_event(game, event):
         if event.key == pygame.K_s:
             pass
         if event.key == pygame.K_SPACE:
-             personagem1.apply_force((0, -FORCA_DO_SALTO))
+             if personagem1.is_on_ground():
+                 personagem1.set_velocity_y(-VELOCIDADE_DE_SALTO)
     elif event.type == pygame.KEYUP:
         if event.key == pygame.K_LEFT:
+            personagem1.set_velocity_x(0)
+            personagem1.set_current_animation("idle")
             pass
         if event.key == pygame.K_RIGHT: 
+            personagem1.set_velocity_x(0)
+            personagem1.set_current_animation("idle")
             pass
         if event.key == pygame.K_UP:
             pass

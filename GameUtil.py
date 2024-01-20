@@ -205,6 +205,29 @@ class GameObject(pygame.sprite.Sprite):
     def apply_force(self, force):
         self.body.apply_force_at_local_point(force)
 
+    def set_velocity(self, velocity):
+        self.body.velocity = velocity
+
+    def set_velocity_x(self, velocity):
+        self.body.velocity = (velocity, self.body.velocity.y)
+
+    def set_velocity_y(self, velocity):
+        self.body.velocity = (self.body.velocity.x, velocity)
+
+    def create_clones(self, positions):
+        return [self.create_clone(p) for p in positions]
+    
+    def create_clone(self, position):
+        clone = GameObject(self.size, self.type)
+        clone.position = position
+        clone.mass = self.mass
+        clone.animation_speed = self.animation_speed
+        clone.animations = self.animations
+        clone.set_current_animation(self.current_animation)
+        return clone
+    
+    def is_on_ground(self):
+        return self.body.velocity.y == 0
 
 
     
