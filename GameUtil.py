@@ -88,6 +88,10 @@ class GameObject(pygame.sprite.Sprite):
     def __init__(self, position = (0,0), size=(32,32), type=GameObjectType.DYNAMIC):
         super().__init__()
 
+        self.position = position
+        self.size = size
+        self.type = type
+
         #
         self.spriteSheet = None
         self.inicial_position = (0,0)
@@ -101,6 +105,7 @@ class GameObject(pygame.sprite.Sprite):
         self.current_animation = None
         self.current_frame = 0
         self.rect = pygame.Rect(position, size) 
+        
 
 
     def add_animation(self, name, spriteSheet):
@@ -139,7 +144,21 @@ class GameObject(pygame.sprite.Sprite):
         self.body.apply_force_at_local_point(force)
 
     def clone(self, position=(0,0)):
-        return GameObject(self.spriteSheet, position, self.space, self.mass, self.type)
+        clone = GameObject(position, self.size, self.type)
+        clone.spriteSheet = self.spriteSheet
+        clone.inicial_position = self.inicial_position
+        clone.space = self.space
+        clone.mass = self.mass
+        clone.body_type = self.body_type
+        clone.animation_speed = self.animation_speed
+        clone.last_updated = self.last_updated
+        clone.sheet = self.sheet
+        clone.animations = self.animations
+        clone.current_animation = self.current_animation
+        clone.current_frame = self.current_frame
+        clone.rect = self.rect
+        clone.type = self.type
+        return clone
 
     
 
