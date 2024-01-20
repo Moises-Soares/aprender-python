@@ -11,7 +11,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.objetcs = []
         self.running = True
-        self.last_updated = time.time()
+        self._last_updated = time.time()
         self.time_variation = 0
         self.space = space
         self.space = pymunk.Space()
@@ -30,13 +30,13 @@ class Game:
                     handle_event(self, event)
             self
             # update game state
-            self.time_variation = time.time() - self.last_updated
+            self.time_variation = time.time() - self._last_updated
             if self.space:
                 self.space.step(self.time_variation)
             for o in self.objetcs:
                 o.update()
             update(self,self.time_variation)
-            self.last_updated = time.time()
+            self._last_updated = time.time()
             # render
             self.screen.fill(self.background_color)
             for o in self.objetcs:
@@ -49,16 +49,13 @@ class Game:
             #
             self.clock.tick(fps)
 
-    
-
-
     def set_gravity(self, gravity):
         self.space.gravity = gravity
         
     def add_game_object(self, gameObject ):
          gameObject.body = pymunk.Body(gameObject.mass, pymunk.moment_for_box(gameObject.mass, gameObject.image.get_size()))
          gameObject.body.position = pymunk.Vec2d(gameObject.rect.x, gameObject.rect.y)
-         gameObject.body.body_type = gameObject.body_type.value
+         gameObject.body.body_type = gameObject.type.value
          gameObject.shape = pymunk.Poly.create_box(gameObject.body, gameObject.image.get_size() )
          self.objetcs.append(gameObject)
          self.space.add(gameObject.body, gameObject.shape)
@@ -66,7 +63,6 @@ class Game:
     def add_game_objects(self, gameObjects):
         for o in gameObjects:
             self.add_game_object(o)
-
 
 
 class SpriteSheet:
@@ -85,28 +81,94 @@ class GameObjectType(Enum):
     KINEMATIC = pymunk.Body.KINEMATIC
 
 class GameObject(pygame.sprite.Sprite):    
-    def __init__(self, position = (0,0), size=(32,32), type=GameObjectType.DYNAMIC):
+    def __init__(self, size, type=GameObjectType.DYNAMIC):
         super().__init__()
 
-        self.position = position
-        self.size = size
-        self.type = type
+        self._position = (0,0)
+        self._size = size
+        self._type = type
+        self._space = None
+        self._mass = 1
+        self._animation_speed = 0.2 
+        self._animations = {}
 
-        #
-        self.spriteSheet = None
-        self.inicial_position = (0,0)
-        self.space = None
-        self.mass = 1
-        self.body_type = type
-        self.animation_speed = 0.2 
-        self.last_updated = time.time()
-        self.sheet = {}
-        self.animations = {}
-        self.current_animation = None
-        self.current_frame = 0
-        self.rect = pygame.Rect(position, size) 
-        
 
+        self._current_animation = None
+        self._current_frame = 0
+        self._last_updated = time.time()
+    
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value
+        self.rect = pygame.Rect(value, self.size) 
+        if hasattr(self, 'body'):
+            self.body.position = pymunk.Vec2d(value[0], value[1])
+
+    @property
+    def size(self):
+        return self._size
+    
+    @size.setter
+    def size(self, value):
+        self._size = value
+        self.rect = pygame.Rect(self.position, value) 
+        if hasattr(self, 'body'):
+            self.body.position = pymunk.Vec2d(value[0], value[1])
+
+    @property
+    def type(self):
+        return self._type
+    
+    @type.setter
+    def type(self, value):
+        self._type = value
+        if hasattr(self, 'body'):
+            self.body.body_type = value.value
+    
+    @property
+    def space(self):
+        return self._space
+    
+    @space.setter
+    def space(self, value):
+        self._space = value
+        if hasattr(self, 'body'):
+            self.body.space = value
+
+    @property
+    def mass(self):
+        return self._mass
+    
+    @mass.setter
+    def mass(self, value):
+        self._mass = value
+        if hasattr(self, 'body'):
+            self.body.mass = value
+
+    @property
+    def animation_speed(self):
+        return self._animation_speed
+    
+    @animation_speed.setter
+    def animation_speed(self, value):
+        self._animation_speed = value
+        self._last_updated = time.time()
+
+
+    @property
+    def animations(self):
+        return self._animations
+    
+    @animations.setter
+    def animations(self, value):
+        self._animations = value
+        self._last_updated = time.time()
+
+    
 
     def add_animation(self, name, spriteSheet):
         # Load the image from the sprite sheet path
@@ -124,16 +186,16 @@ class GameObject(pygame.sprite.Sprite):
         self.current_animation = name
         self.current_frame = 0
         self.image = self.animations[self.current_animation][self.current_frame]
-        self.last_updated = time.time() 
+        self._last_updated = time.time() 
         
 
 
     def update(self):
         # Update sprite animation
-        if time.time() - self.last_updated > self.animation_speed:
+        if time.time() - self._last_updated > self.animation_speed:
             self.current_frame = (self.current_frame + 1) % len(self.animations[self.current_animation])
             self.image = self.animations[self.current_animation][self.current_frame]
-            self.last_updated = time.time()
+            self._last_updated = time.time()
 
         # Update sprite position based on physics
         if hasattr(self, 'body'):
@@ -143,23 +205,6 @@ class GameObject(pygame.sprite.Sprite):
     def apply_force(self, force):
         self.body.apply_force_at_local_point(force)
 
-    def clone(self, position=(0,0)):
-        clone = GameObject(position, self.size, self.type)
-        clone.spriteSheet = self.spriteSheet
-        clone.inicial_position = self.inicial_position
-        clone.space = self.space
-        clone.mass = self.mass
-        clone.body_type = self.body_type
-        clone.animation_speed = self.animation_speed
-        clone.last_updated = self.last_updated
-        clone.sheet = self.sheet
-        clone.animations = self.animations
-        clone.current_animation = self.current_animation
-        clone.current_frame = self.current_frame
-        clone.rect = self.rect
-        clone.type = self.type
-        return clone
 
-    
 
     
